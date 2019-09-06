@@ -8,8 +8,13 @@ public class Mensaje {
 		this.msg = msg;
 	}
 	
-	public void enviar(Buffer buffer){
+	public synchronized void enviar(Buffer buffer){
 		buffer.enviarMsg(this);
+		try {
+			wait();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void fin(Buffer buffer){
@@ -19,4 +24,10 @@ public class Mensaje {
 	public void responder(){
 		msg++;
 	}
+
+	public int getMsg() {
+		return msg;
+	}
+	
+	
 }

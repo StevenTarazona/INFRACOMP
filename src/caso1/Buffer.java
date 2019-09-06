@@ -9,7 +9,7 @@ public class Buffer {
 
 	private Queue<Mensaje> mensajes;
 	private int capacidad;
-	private int nClientes;
+	public int nClientes;
 
 	public Buffer(int capacidad, int nClientes) {
 		mensajes = new LinkedList<Mensaje>();
@@ -17,7 +17,8 @@ public class Buffer {
 		this.nClientes = nClientes;
 	}
 
-	public synchronized void enviarMsg(Mensaje mensaje) {
+	public void enviarMsg(Mensaje mensaje) {
+		System.out.println("enviando: "+mensaje.getMsg());
 		while (mensajes.size() >= capacidad) {
 			try {
 				wait();
@@ -29,20 +30,18 @@ public class Buffer {
 	}
 
 	public synchronized Mensaje leerMsg() {
-		while (mensajes.size() <= 0){
-			System.out.println(2);
-			//Thread.yield();
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return mensajes.poll();
+		Mensaje mensaje=mensajes.poll();
+		if(mensaje!=null)
+			notify();
+		return mensaje;
 	}
 
-	public void sacarCliente() {
+	public synchronized void sacarCliente() {
 		nClientes--;
 	}
+
+	public int getnClientes() {
+		return nClientes;
+	}
+	
 }

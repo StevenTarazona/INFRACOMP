@@ -1,6 +1,9 @@
 package caso1;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -14,7 +17,6 @@ public class Main {
 		jfc.setFileFilter(filtro);
 
 		int returnValue = jfc.showOpenDialog(null);
-		// int returnValue = jfc.showSaveDialog(null);
 
 		if (returnValue == JFileChooser.APPROVE_OPTION) {
 			File file = jfc.getSelectedFile();
@@ -25,14 +27,15 @@ public class Main {
 			int bufferSize = 10;
 
 			Buffer buffer = new Buffer(bufferSize, nClientes);
-
+			
 			for (int i = 0; i < nServidores; i++) {
-				Servidor servidor = new Servidor(i);
-				servidor.run(buffer);
+				Servidor s = new Servidor(i, buffer);
+				s.start();
 			}
+			
 			for (int i = 0; i < nClientes; i++) {
-				Cliente cliente = new Cliente(i, 10);
-				cliente.run(buffer);
+				Cliente c = new Cliente(i, 10, buffer);
+				c.start();
 			}
 		}
 

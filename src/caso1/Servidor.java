@@ -2,19 +2,28 @@ package caso1;
 
 public class Servidor extends Thread{
 	
-	int id;
+	private int id;
+	private Buffer buffer;
 	
-	public Servidor(int pId) {
-		id = pId;
+	public Servidor(int id, Buffer buffer) {
+		this.id = id;
+		this.buffer=buffer;
 	}
 	
-	public void run(Buffer buffer){
+	public void run(){
 		System.out.println("El servidor "+id+" ha sido creado");
-		while (true) {
-			System.out.println(1);
-			Mensaje mensaje = buffer.leerMsg();
+		while (buffer.getnClientes()>0) {
+			Mensaje mensaje = null;
+			while (mensaje== null) {
+				mensaje = buffer.leerMsg();
+				yield();
+			}
+			System.out.println("leido: "+mensaje.getMsg());
 			mensaje.responder();
-			mensaje.notify();
+			synchronized (mensaje) {
+
+				mensaje.notify();
+			}
 		}
 	}
 }
