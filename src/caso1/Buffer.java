@@ -17,9 +17,10 @@ public class Buffer {
 		this.nClientes = nClientes;
 	}
 
-	public void enviarMsg(Mensaje mensaje) {
-		System.out.println("enviando: "+mensaje.getMsg());
+	public synchronized void enviarMsg(Mensaje mensaje) {
+		// System.out.println("enviando: " + mensaje.getMsg());
 		while (mensajes.size() >= capacidad) {
+			// System.out.println("Ël buffer se encuentra lleno");
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -30,8 +31,8 @@ public class Buffer {
 	}
 
 	public synchronized Mensaje leerMsg() {
-		Mensaje mensaje=mensajes.poll();
-		if(mensaje!=null)
+		Mensaje mensaje = mensajes.poll();
+		if (mensaje != null)
 			notify();
 		return mensaje;
 	}
@@ -43,5 +44,5 @@ public class Buffer {
 	public int getnClientes() {
 		return nClientes;
 	}
-	
+
 }
