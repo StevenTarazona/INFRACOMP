@@ -3,8 +3,6 @@ package caso1;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import javax.sql.rowset.spi.SyncResolver;
-
 public class Buffer {
 
 	private Queue<Mensaje> mensajes;
