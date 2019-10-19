@@ -43,7 +43,7 @@ public class Principal {
 	}
 
 	private static void inicializarServidorCMD() throws IOException {
-		Runtime.getRuntime().exec(
+		servidor = Runtime.getRuntime().exec(
 				"cmd.exe /c start cmd.exe /k \"java -jar \"" + System.getProperty("user.dir") + "\\" + JAR + "\"");
 		System.out.println("Eztablezca puerto de conexion (primero en el CMD):");
 		PUERTO = Integer.parseInt(stdIn.readLine());
@@ -83,19 +83,19 @@ public class Principal {
 
 			inicializar();
 
-			Cliente cliente = new Cliente(socket, escritor, lector, stdIn);
+			Cliente cliente = new Cliente(escritor, lector, stdIn);
 
-			try {
-				cliente.procesar();
-			} catch (CertificateException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
-					| IllegalBlockSizeException | BadPaddingException e) {
-				e.printStackTrace();
-			}
+			cliente.procesar();
 
 			finalizar();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		servidor.destroy();
+		try {
+			Runtime.getRuntime().exec("taskkill /f /im java.exe");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
