@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;

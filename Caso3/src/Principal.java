@@ -6,68 +6,38 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 
 public class Principal {
 
-	public static int PUERTO;
-	public static final String SERVIDOR = "localhost";
-	public static final String JAR = "servidor20192.jar";
-	public static Process servidor;
-	public static Socket socket;
-	public static PrintWriter escritor;
-	public static BufferedReader lector;
-	public static BufferedReader stdIn;
+	private int PUERTO;
+	private static final String SERVIDOR = "localhost";
+	private Socket socket;
+	private PrintWriter escritor;
+	private BufferedReader lector;
 
-	private static void inicializarServidor() throws IOException {
-		servidor = Runtime.getRuntime().exec(
-				"cmd.exe /c start cmd.exe /k \"java -jar \"" + System.getProperty("user.dir") + "\\" + JAR + "\"");
-		System.out.println("Eztablezca puerto de conexion (primero en el CMD):");
-		PUERTO = Integer.parseInt(stdIn.readLine());
-	}
-
-	private static void inicializar() throws UnknownHostException, IOException {
+	private void inicializar() throws UnknownHostException, IOException {
 		socket = new Socket(SERVIDOR, PUERTO);
 		escritor = new PrintWriter(socket.getOutputStream(), true);
 		lector = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		
+		System.out.println(socket);
+		System.out.println(escritor);
+		System.out.println(lector);
 	}
 
-	private static void finalizar() throws IOException {
-		stdIn.close();
+	private void finalizar() throws IOException {
 		escritor.close();
 		lector.close();
 		socket.close();
 	}
 
-	public static void main(String[] args) {
+	public void iniciar(int puerto) throws UnknownHostException, IOException {
 
-		try {
-
-			stdIn = new BufferedReader(new InputStreamReader(System.in));
-
-			inicializarServidor();
-
+			PUERTO = puerto;
 			inicializar();
-
-			Cliente cliente = new Cliente(escritor, lector, stdIn);
-
+			
+			Cliente cliente = new Cliente(escritor, lector);
 			cliente.procesar();
-
 			finalizar();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		servidor.destroy();
-		try {
-			Runtime.getRuntime().exec("taskkill /f /im java.exe");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }

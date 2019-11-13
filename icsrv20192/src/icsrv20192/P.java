@@ -10,12 +10,16 @@ import java.net.Socket;
 import java.security.KeyPair;
 import java.security.Security;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class P {
 	private static ServerSocket ss;	
 	private static final String MAESTRO = "MAESTRO: ";
 	private static X509Certificate certSer; /* acceso default */
 	private static KeyPair keyPairServidor; /* acceso default */
+	private final static int NPOOL = 100;
 	
 	/**
 	 * @param args
@@ -46,20 +50,24 @@ public class P {
         
         D.init(certSer, keyPairServidor, file);
         
+        ExecutorService pool = Executors.newFixedThreadPool(NPOOL); 
+        
 		// Crea el socket que escucha en el puerto seleccionado.
 		ss = new ServerSocket(ip);
 		System.out.println(MAESTRO + "Socket creado.");
         
-		for (int i=0;true;i++) {
+		for (int i = 0; i < NPOOL; i++) {
 			try { 
 				Socket sc = ss.accept();
 				System.out.println(MAESTRO + "Cliente " + i + " aceptado.");
 				D d = new D(sc,i);
-				d.start();
+				pool.execute(d);
 			} catch (IOException e) {
+				pool.shutdown();
 				System.out.println(MAESTRO + "Error creando el socket cliente.");
 				e.printStackTrace();
 			}
 		}
+		
 	}
 }
