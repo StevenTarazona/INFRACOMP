@@ -2,15 +2,15 @@
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -22,34 +22,41 @@ import javax.xml.bind.DatatypeConverter;
 
 public class Cliente {
 
+	private Socket socket;
 	private PrintWriter escritor;
 	private BufferedReader lector;
-	private static String[] algoritmos;
+
 	private X509Certificate certificadoServidor;
 	private SecretKey llaveSimetrica;
 
+	private String[] algoritmos;
 	private String[] ALGS = { "DES", "AES", "Blowfish" };
 	private String[] ALGHMAC = { "HMACSHA1", "HMACSHA256", "HMACSHA384", "HMACSHA512" };
 
-	public Cliente(PrintWriter escritor, BufferedReader lector) {
-		this.escritor = escritor;
-		this.lector = lector;
-	}
-
-	public void procesar() {
-		System.out.println("• Etapa 1...");
+	public void iniciar(int puerto, String servidor) {
 		try {
+			socket = new Socket((servidor.equals("")?"localhost":servidor), puerto);
+			escritor = new PrintWriter(socket.getOutputStream(), true);
+			lector = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+			// System.out.println("• Etapa 1...");
 			etapa1();
-			System.out.println("• Etapa 2...");
+			// System.out.println("• Etapa 2...");
 			etapa2();
-			System.out.println("• Etapa 3...");
+			// System.out.println("• Etapa 3...");
 			etapa3();
-			System.out.println("• Etapa 4...");
+			// System.out.println("• Etapa 4...");
 			etapa4();
+
+			escritor.close();
+			lector.close();
+			socket.close();
+
 		} catch (Exception e) {
-			// e.printStackTrace();
-			System.out.println("cerrando...");
+			e.printStackTrace();
+			// System.out.println("cerrando...");
 		}
+
 	}
 
 	private void etapa1() throws Exception {
@@ -67,25 +74,19 @@ public class Cliente {
 			throw new Exception("");
 	}
 
-	private String algoritmos() {
-		String rta = "ALGORITMOS:" + ALGS[(int) (Math.random() * (ALGS.length - 1))];
-		rta += ":RSA:" + ALGHMAC[(int) (Math.random() * (ALGHMAC.length - 1))];
-		return rta;
-	}
-
 	private void etapa2() throws Exception {
 		String fromServer;
 		if ((fromServer = lector.readLine()) != null) {
 			// System.out.println("Respuesta del servidor: " + fromServer);
 			if (fromServer.equals("OK") && (fromServer = lector.readLine()) != null) {
-				//System.out.println("Certificado del Servidor: "+(certificadoServidor = Seguridad.generarCertificado(fromServer)).toString() + "\n");
+				// System.out.println("Certificado del Servidor:+(certificadoServidor = Seguridad.generarCertificado(fromServer)).toString() + "\n");
 				certificadoServidor = Seguridad.generarCertificado(fromServer);
 				certificadoServidor.checkValidity();
 
-				// System.out.println("Generando y enviando llave
-				// simetrica...");
-				escritor.println(Seguridad.cifrar((llaveSimetrica = Seguridad.generarLlaveSimetrica()).getEncoded(),
-						certificadoServidor.getPublicKey(), algoritmos[2], 1));
+				// System.out.println("Generando y enviando llave simetrica...");
+				escritor.println(
+						Seguridad.cifrar((llaveSimetrica = Seguridad.generarLlaveSimetrica(algoritmos)).getEncoded(),
+								certificadoServidor.getPublicKey(), algoritmos[2], 1));
 
 				String reto = Seguridad.completar("reto");
 				escritor.println(reto);
@@ -140,6 +141,12 @@ public class Cliente {
 		} else
 			throw new Exception("");
 	}
+	
+	private String algoritmos() {
+		String rta = "ALGORITMOS:" + ALGS[(int) (Math.random() * (ALGS.length - 1))];
+		rta += ":RSA:" + ALGHMAC[(int) (Math.random() * (ALGHMAC.length - 1))];
+		return rta;
+	}
 
 	private static class Seguridad {
 		/**
@@ -169,8 +176,8 @@ public class Cliente {
 					.generateCertificate(new ByteArrayInputStream(bytes));
 		}
 
-		public static SecretKey generarLlaveSimetrica() throws NoSuchAlgorithmException {
-			return KeyGenerator.getInstance(algoritmos[1]).generateKey();
+		public static SecretKey generarLlaveSimetrica(String[] alg) throws NoSuchAlgorithmException {
+			return KeyGenerator.getInstance(alg[1]).generateKey();
 		}
 
 		public static String completar(String msg) {
