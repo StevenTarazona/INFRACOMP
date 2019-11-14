@@ -1,6 +1,7 @@
 package icsrv20192;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,9 +11,10 @@ import java.net.Socket;
 import java.security.KeyPair;
 import java.security.Security;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Logger;
 
 public class P {
 	private static ServerSocket ss;	
@@ -55,12 +57,23 @@ public class P {
 		// Crea el socket que escucha en el puerto seleccionado.
 		ss = new ServerSocket(ip);
 		System.out.println(MAESTRO + "Socket creado.");
+		
+
+		BufferedWriter writer = null;
+		String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+        File logFile = new File(System.getProperty("user.dir")+"/monitor_"+timeLog+".csv");
+        file.setWritable(true);
+        file.setReadable(true);
+        writer = new BufferedWriter(new FileWriter(logFile));
+        writer.write("Delegado;Tiempo de respuesta;Uso de CPU");
+        writer.close();
         
 		for (int i = 0; i < NPOOL; i++) {
-			try { 
+			try {
+				writer = new BufferedWriter(new FileWriter(logFile, true));
 				Socket sc = ss.accept();
 				System.out.println(MAESTRO + "Cliente " + i + " aceptado.");
-				D d = new D(sc,i);
+				D d = new D(sc,i,writer);
 				pool.execute(d);
 			} catch (IOException e) {
 				pool.shutdown();

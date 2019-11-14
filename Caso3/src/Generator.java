@@ -11,7 +11,7 @@ public class Generator {
 
 	public Generator() throws NumberFormatException, IOException {
 		Task work = createTask();
-		int numberOfTasks = 100;
+		int numberOfTasks = 10;
 		int gapBetweenTasks = 500;
 		generator = new LoadGenerator("Cliente - Server Load Test", numberOfTasks, work, gapBetweenTasks);
 		generator.generate();
