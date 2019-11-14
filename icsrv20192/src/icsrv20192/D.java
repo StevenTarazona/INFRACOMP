@@ -10,6 +10,7 @@ import java.lang.management.ManagementFactory;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
+import java.text.DecimalFormat;
 import java.util.Random;
 
 import javax.crypto.SecretKey;
@@ -210,7 +211,7 @@ public class D extends Thread {
 				ac.println(toHexString(recibo));
 				
 				long endTime   = System.nanoTime();
-				writer.write("\n"+delegado+";"+Math.pow(endTime-startTime,-6)+";"+getSystemCpuLoad());
+				writer.write("\n"+delegado+";"+((endTime-startTime)/1000000.0)+";"+getSystemCpuLoad());
 				writer.close();
 				
 				System.out.println(dlg + "envio hmac cifrado con llave privada del servidor. continuado.");

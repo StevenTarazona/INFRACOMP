@@ -21,7 +21,7 @@ public class P {
 	private static final String MAESTRO = "MAESTRO: ";
 	private static X509Certificate certSer; /* acceso default */
 	private static KeyPair keyPairServidor; /* acceso default */
-	private final static int NPOOL = 100;
+	private final static int NPOOL = 2;
 	
 	/**
 	 * @param args
@@ -61,7 +61,7 @@ public class P {
 
 		BufferedWriter writer = null;
 		String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-        File logFile = new File(System.getProperty("user.dir")+"/monitor_"+timeLog+".csv");
+        File logFile = new File(System.getProperty("user.dir")+"/monitor/"+timeLog+".csv");
         file.setWritable(true);
         file.setReadable(true);
         writer = new BufferedWriter(new FileWriter(logFile));
