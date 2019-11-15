@@ -68,12 +68,15 @@ public class P {
         writer.write("Delegado;Tiempo de respuesta;Uso de CPU");
         writer.close();
         
-		for (int i = 0; i < NPOOL; i++) {
+        
+        int i = 0;
+		while(true) {
 			try {
 				writer = new BufferedWriter(new FileWriter(logFile, true));
 				Socket sc = ss.accept();
 				System.out.println(MAESTRO + "Cliente " + i + " aceptado.");
 				D d = new D(sc,i,writer);
+				i++;
 				pool.execute(d);
 			} catch (IOException e) {
 				pool.shutdown();
