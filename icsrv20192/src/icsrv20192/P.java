@@ -22,6 +22,11 @@ public class P {
 	private static X509Certificate certSer; /* acceso default */
 	private static KeyPair keyPairServidor; /* acceso default */
 	private final static int NPOOL = 2;
+	public static int perdidas = 0;
+	
+	public static synchronized void perdidas() {
+		perdidas++;
+	}
 	
 	/**
 	 * @param args
@@ -62,10 +67,8 @@ public class P {
 		BufferedWriter writer = null;
 		String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
         File logFile = new File(System.getProperty("user.dir")+"/monitor/"+timeLog+".csv");
-        file.setWritable(true);
-        file.setReadable(true);
         writer = new BufferedWriter(new FileWriter(logFile));
-        writer.write("Delegado;Tiempo de respuesta;Uso de CPU");
+        writer.write("Delegado;Tiempo de respuesta;Uso de CPU;Transacciones perdidas");
         writer.close();
         
         
@@ -79,6 +82,7 @@ public class P {
 				i++;
 				pool.execute(d);
 			} catch (IOException e) {
+				perdidas();
 				pool.shutdown();
 				System.out.println(MAESTRO + "Error creando el socket cliente.");
 				e.printStackTrace();
