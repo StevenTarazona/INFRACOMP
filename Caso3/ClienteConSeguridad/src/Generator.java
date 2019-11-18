@@ -9,8 +9,8 @@ public class Generator {
 
 	private LoadGenerator generator;
 	
-	private int numberOfTasks = 400;
-	private int gapBetweenTasks = 20;
+	private int numberOfTasks = 200;
+	private int gapBetweenTasks = 40;
 
 	public Generator() throws NumberFormatException, IOException {
 		Task work = createTask();
